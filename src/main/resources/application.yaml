@@ -1,3 +1,23 @@
 spring:
   application:
     name: vibe
+
+  # Configuração do Banco de Dados PostgreSQL
+  datasource:
+    url: jdbc:postgresql://localhost:5432/chat_db
+    username: user
+    password: password
+    driver-class-name: org.postgresql.Driver
+
+  # Configuração do RabbitMQ
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
+  # Configuração do JPA / Hibernate (Útil para desenvolvimento)
+  jpa:
+    hibernate:
+      ddl-auto: update # Cria as tabelas automaticamente baseado nas suas classes Java
+    show-sql: true     # Mostra no console os comandos SQL que o Java está executando
