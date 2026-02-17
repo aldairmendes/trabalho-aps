@@ -1,0 +1,29 @@
+services:
+  # Banco de Dados para armazenar histórico e usuários
+  db:
+    image: postgres:15-alpine
+    container_name: vibe_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: chat_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - vibe_db_data:/var/lib/postgresql/data
+
+  # Mensageria para o envio em tempo real
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: vibe_rabbitmq
+    restart: always
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    ports:
+      - "5672:5672"   # Porta do protocolo AMQP (o que o Java usa)
+      - "15672:15672" # Porta da Interface Web (Painel de Controle)
+
+volumes:
+  vibe_db_data:
