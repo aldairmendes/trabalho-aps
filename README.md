@@ -1,7 +1,7 @@
 O Vibe é o embrião de uma rede social focada em comunicação instantânea. O projeto utiliza uma arquitetura baseada em eventos para garantir que as mensagens sejam processadas de forma assíncrona e entregues em tempo real.
 Tecnologias Utilizadas
 
-    Java 17 & Spring Boot 3: Núcleo da aplicação e gerenciamento de dependências.
+    Java 21 & Spring Boot 3: Núcleo da aplicação e gerenciamento de dependências.
 
     PostgreSQL: Banco de dados relacional para persistência duradoura das mensagens.
 
