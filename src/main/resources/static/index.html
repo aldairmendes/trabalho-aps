@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Vibe Chat Test</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+</head>
+<body>
+    <h2>Vibe Real-Time Monitor</h2>
+    <div id="status" style="color: red;">Desconectado</div>
+    <ul id="messages"></ul>
+
+    <script>
+        const socket = new SockJS('/vibe-ws');
+        const stompClient = Stomp.over(socket);
+
+        stompClient.connect({}, function (frame) {
+            document.getElementById('status').innerText = 'Conectado!';
+            document.getElementById('status').style.color = 'green';
+            
+            // Se inscreve no tópico que configuramos no Consumer
+            stompClient.subscribe('/topic/messages', function (output) {
+                const message = output.body;
+                const li = document.createElement('li');
+                li.appendChild(document.createTextNode(message));
+                document.getElementById('messages').appendChild(li);
+            });
+        });
+    </script>
+</body>
+</html>
