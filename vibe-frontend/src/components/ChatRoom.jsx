@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 // Removemos o SockJS e o import antigo do Stomp
 import { Client } from '@stomp/stompjs';
+import SockJS from 'sockjs-client';
 
 export default function ChatRoom() {
   const [messages, setMessages] = useState([]);
@@ -18,10 +19,13 @@ export default function ChatRoom() {
         console.log('Conectado ao WebSocket com sucesso!');
         
         client.subscribe('/topic/messages', (msg) => {
-          if (msg.body) {
-            const newMessage = JSON.parse(msg.body);
-            setMessages((prev) => [...prev, newMessage]);
-          }
+          // 1. Verificamos o que chegou
+          const data = typeof msg.body === 'string' ? JSON.parse(msg.body) : msg.body;
+          
+          console.log("Objeto processado:", data);
+
+          // 2. Atualizamos a lista de mensagens
+          setMessages((prev) => [...prev, data]);
         });
       },
 

@@ -11,3 +11,30 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.messages-list {
+  height: 400px;
+  overflow-y: auto;
+  padding: 20px;
+  background-color: #f9f9f9;
+  display: flex;
+  flex-direction: column;
+}
+
+.message-wrapper {
+  margin: 5px 0;
+  display: flex;
+}
+
+.message-wrapper.me { justify-content: flex-end; }
+.message-wrapper.others { justify-content: flex-start; }
+
+.message-bubble {
+  padding: 8px 12px;
+  border-radius: 18px;
+  max-width: 60%;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.me .message-bubble { background-color: #007bff; color: white; }
+.others .message-bubble { background-color: #e9e9eb; color: #333; }
