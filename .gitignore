@@ -29,5 +29,17 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
+### Node / React ###
+vibe-frontend/node_modules/
+vibe-frontend/build/
+vibe-frontend/.env.local
+vibe-frontend/.env.development.local
+vibe-frontend/.env.test.local
+vibe-frontend/.env.production.local
+
+vibe-frontend/npm-debug.log*
+vibe-frontend/yarn-debug.log*
+vibe-frontend/yarn-error.log*
+
 ### VS Code ###
 .vscode/
