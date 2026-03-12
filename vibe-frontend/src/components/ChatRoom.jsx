@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import SockJS from 'sockjs-client';
-import Stomp from 'stompjs';
+// Removemos o SockJS e o import antigo do Stomp
+import { Client } from '@stomp/stompjs';
 
 export default function ChatRoom() {
   const [messages, setMessages] = useState([]);
@@ -8,29 +8,53 @@ export default function ChatRoom() {
   const stompClient = useRef(null);
 
   useEffect(() => {
-    const socket = new SockJS('http://localhost:8080/vibe-ws');
-    stompClient.current = Stomp.over(socket);
+    const client = new Client({
+      brokerURL: 'ws://localhost:8080/vibe-ws',
+      reconnectDelay: 5000,
+      heartbeatIncoming: 4000,
+      heartbeatOutgoing: 4000,
 
-    stompClient.current.connect({}, () => {
-      stompClient.current.subscribe('/topic/messages', (msg) => {
-        const newMessage = JSON.parse(msg.body);
-        setMessages((prev) => [...prev, newMessage]);
-      });
+      onConnect: () => {
+        console.log('Conectado ao WebSocket com sucesso!');
+        
+        client.subscribe('/topic/messages', (msg) => {
+          if (msg.body) {
+            const newMessage = JSON.parse(msg.body);
+            setMessages((prev) => [...prev, newMessage]);
+          }
+        });
+      },
+
+      onStompError: (frame) => {
+        console.error('Erro no Broker: ' + frame.headers['message']);
+        console.error('Detalhes: ' + frame.body);
+      },
     });
 
+    client.activate();
+    stompClient.current = client;
+
     return () => {
-      if (stompClient.current) stompClient.current.disconnect();
+      if (stompClient.current) {
+        stompClient.current.deactivate();
+      }
     };
   }, []);
 
   const sendMessage = (e) => {
     e.preventDefault();
-    if (stompClient.current && stompClient.current.connected && inputValue) {
-      stompClient.current.send("/app/chat", {}, JSON.stringify({
-        sender: "Mendes15",
-        content: inputValue
-      }));
-      setInputValue(''); // Limpa o campo após enviar
+    
+    if (stompClient.current && stompClient.current.active && inputValue) {
+      stompClient.current.publish({
+        destination: "/app/chat",
+        body: JSON.stringify({
+          sender: "Mendes15",
+          content: inputValue
+        })
+      });
+      setInputValue(''); 
+    } else {
+      console.warn("Conexão não está ativa.");
     }
   };
 
