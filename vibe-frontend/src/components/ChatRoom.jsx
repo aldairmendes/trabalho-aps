@@ -9,7 +9,7 @@ export default function ChatRoom() {
 
   useEffect(() => {
     const client = new Client({
-      brokerURL: 'ws://localhost:8080/vibe-ws',
+      webSocketFactory: () => new SockJS('http://localhost:8080/vibe-ws'),
       reconnectDelay: 5000,
       heartbeatIncoming: 4000,
       heartbeatOutgoing: 4000,
