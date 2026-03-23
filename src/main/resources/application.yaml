@@ -19,5 +19,14 @@ spring:
   # Configuração do JPA / Hibernate (Útil para desenvolvimento)
   jpa:
     hibernate:
-      ddl-auto: update # Cria as tabelas automaticamente baseado nas suas classes Java
-    show-sql: true     # Mostra no console os comandos SQL que o Java está executando
+      ddl-auto: update # Cria as tabelas automaticamente
+    show-sql: true
+
+  ai:
+    google:
+      genai:
+        api-key: ${GEMINI_API_KEY}
+        chat:
+          options:
+            model: gemini-1.5-flash
+            temperature: 0.7
