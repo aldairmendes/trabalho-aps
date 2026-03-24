@@ -1,4 +1,12 @@
 spring:
+  autoconfigure:
+    autoconfigure:
+    exclude: 
+      - org.springframework.cloud.function.context.config.ContextFunctionCatalogAutoConfiguration
+      - org.springframework.cloud.function.context.config.KotlinLambdaToFunctionAutoConfiguration
+      - org.springframework.cloud.function.web.flux.FunctionControlerAutoConfiguration
+  main:
+    allow-bean-definition-overriding: true
   application:
     name: vibe
 
@@ -26,6 +34,7 @@ spring:
     google:
       genai:
         api-key: ${GEMINI_API_KEY}
+        enabled: true
         chat:
           options:
             model: gemini-1.5-flash

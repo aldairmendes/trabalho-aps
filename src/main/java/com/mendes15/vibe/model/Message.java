@@ -28,6 +28,9 @@ public class Message {
     private String content;
 
     @Column(nullable = false)
+    private String roomId;
+    
+    @Column(nullable = false)
     private LocalDateTime timestamp;
 
     // Helper para definir a data antes de salvar

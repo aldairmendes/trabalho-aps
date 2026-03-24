@@ -9,7 +9,6 @@ public class RabbitMQConfig {
 
     @Bean
     public Queue messageQueue() {
-        // Isso garante que a fila 'vibe-messages' exista assim que o app subir
         return new Queue("vibe-messages", true);
     }
 }

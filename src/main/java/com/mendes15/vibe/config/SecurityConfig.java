@@ -16,10 +16,9 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable()) // Desabilita CSRF para permitir o POST do curl
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/vibe-ws/**").permitAll() // Libera o endpoint
-                        .anyRequest().permitAll() // Libera todos os endpoints temporariamente
+                        .requestMatchers("/vibe-ws/**").permitAll()
+                        .anyRequest().permitAll()
                 )
-                // Isso é importante para o SockJS funcionar em alguns navegadores
                 .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()));
 
         return http.build();
@@ -27,7 +26,6 @@ public class SecurityConfig {
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
-        // Isso diz ao Spring: "Não toque em nada que venha desse caminho"
         return (web) -> web.ignoring().requestMatchers("/vibe-ws/**");
     }
 }
