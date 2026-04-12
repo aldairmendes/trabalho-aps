@@ -1,7 +1,6 @@
 spring:
   autoconfigure:
-    autoconfigure:
-    exclude: 
+    exclude:
       - org.springframework.cloud.function.context.config.ContextFunctionCatalogAutoConfiguration
       - org.springframework.cloud.function.context.config.KotlinLambdaToFunctionAutoConfiguration
       - org.springframework.cloud.function.web.flux.FunctionControlerAutoConfiguration
@@ -10,32 +9,71 @@ spring:
   application:
     name: vibe
 
-  # Configuração do Banco de Dados PostgreSQL
+  # ── Banco de Dados ────────────────────────────────────────────────────────
   datasource:
     url: jdbc:postgresql://localhost:5432/chat_db
     username: user
     password: password
     driver-class-name: org.postgresql.Driver
 
-  # Configuração do RabbitMQ
+  # ── RabbitMQ ──────────────────────────────────────────────────────────────
   rabbitmq:
     host: localhost
     port: 5672
     username: guest
     password: guest
 
-  # Configuração do JPA / Hibernate (Útil para desenvolvimento)
+  # ── JPA / Hibernate ───────────────────────────────────────────────────────
   jpa:
     hibernate:
-      ddl-auto: update # Cria as tabelas automaticamente
+      ddl-auto: update
     show-sql: true
 
+  # ── Spring AI ─────────────────────────────────────────────────────────────
   ai:
+    chat:
+      client:
+        enabled: false   # desativa o ChatClient.Builder global — criamos manualmente
+
+    # Grok via endpoint OpenAI-compatible
+    openai:
+      api-key: ${GROK_API_KEY}
+      base-url: https://api.x.ai/v1
+      chat:
+        options:
+          model: grok-3-latest
+          temperature: 0.7
+
+    # Google Gemini
     google:
       genai:
         api-key: ${GEMINI_API_KEY}
         enabled: true
         chat:
           options:
-            model: gemini-1.5-flash
+            model: gemini-2.0-flash-lite
             temperature: 0.7
+
+    # Anthropic Claude
+    anthropic:
+      api-key: ${ANTHROPIC_API_KEY}
+      chat:
+        options:
+          model: claude-sonnet-4-5
+          temperature: 0.7
+
+    # Ollama — LLMs locais (Docker em localhost:11434)
+    ollama:
+      base-url: http://localhost:11434
+      chat:
+        options:
+          model: llama3.2       # modelo padrão; sobrescrito via @Bean se quiser vários
+          temperature: 0.7
+          num-ctx: 4096         # tamanho do contexto (tokens)
+
+# ── JWT ───────────────────────────────────────────────────────────────────────
+# Gere um secret seguro com: openssl rand -base64 64
+jwt:
+  secret: ${JWT_SECRET:mude-este-secret-em-producao-use-openssl-rand-base64-64}
+  expiration-ms: 86400000      # 24 horas em ms
+  refresh-expiration-ms: 604800000  # 7 dias em ms (refresh token)

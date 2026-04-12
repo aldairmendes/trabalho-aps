@@ -1,5 +1,6 @@
 services:
-  # Banco de Dados para armazenar histórico e usuários
+
+  # ── Banco de Dados ────────────────────────────────────────────────────────
   db:
     image: postgres:15-alpine
     container_name: vibe_postgres
@@ -12,8 +13,13 @@ services:
       - "5432:5432"
     volumes:
       - vibe_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d chat_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  # Mensageria para o envio em tempo real
+  # ── Mensageria ────────────────────────────────────────────────────────────
   rabbitmq:
     image: rabbitmq:3-management-alpine
     container_name: vibe_rabbitmq
@@ -22,8 +28,88 @@ services:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
     ports:
-      - "5672:5672"   # Porta do protocolo AMQP (o que o Java usa)
-      - "15672:15672" # Porta da Interface Web (Painel de Controle)
+      - "5672:5672"    # AMQP (Java/Spring)
+      - "15672:15672"  # Painel web
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── Ollama — LLMs locais ──────────────────────────────────────────────────
+  # Acesso: http://localhost:11434
+  # Painel de modelos: http://localhost:11434/api/tags
+  #
+  # Para baixar um modelo após subir o container:
+  #   docker exec -it vibe_ollama ollama pull llama3.2
+  #   docker exec -it vibe_ollama ollama pull mistral
+  #   docker exec -it vibe_ollama ollama pull qwen2.5
+  #
+  # Com GPU NVIDIA — descomente o bloco "deploy" abaixo e garanta que o
+  # nvidia-container-toolkit esteja instalado no host.
+  ollama:
+    image: ollama/ollama:latest
+    container_name: vibe_ollama
+    restart: always
+    ports:
+      - "11434:11434"
+    volumes:
+      - vibe_ollama_data:/root/.ollama   # persiste os modelos baixados
+    environment:
+      - OLLAMA_KEEP_ALIVE=24h            # mantém modelo em memória por 24h
+      - OLLAMA_NUM_PARALLEL=2            # requisições simultâneas por modelo
+    # ── GPU NVIDIA (opcional) ──────────────────────────────────────────────
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: all
+    #           capabilities: [gpu]
+
+    # COMO ESTAVA
+    #healthcheck:
+    #  test: ["CMD-SHELL", "curl -f http://localhost:11434/api/tags || exit 1"]
+    #  interval: 10s
+    #  timeout: 5s
+    #  retries: 5
+    #  start_period: 10s
+
+  # ── Pull automático de modelos (roda uma vez e sai) ───────────────────────
+  # Remove ou comenta os modelos que não quiser baixar.
+  # llama3.2 (~2 GB) é leve e bom para começar.
+
+  # COMO ESTAVA
+  #ollama-init:
+    #image: ollama/ollama:latest
+    #container_name: vibe_ollama_init
+    #depends_on:
+      #ollama:
+        #condition: service_healthy
+    #entrypoint: >
+      #sh -c "
+        #ollama pull llama3.2 &&
+        #echo 'llama3.2 pronto.' &&
+        #ollama pull mistral  &&
+        #echo 'mistral pronto.'
+      #"
+    #environment:
+      #- OLLAMA_HOST=http://ollama:11434
+    #restart: "no"   # roda só na primeira vez
+  
+  # GEMINI
+  ollama-init:
+    image: ollama/ollama:latest
+    container_name: vibe_ollama_init
+    depends_on:
+      - ollama  # Mude para este formato simples
+    entrypoint: >
+      sh -c "
+        sleep 10 && 
+        ollama pull llama3.2 && 
+        ollama pull mistral
+      "
 
 volumes:
   vibe_db_data:
+  vibe_ollama_data:
